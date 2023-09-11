@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"sync"
+	"time"
 )
 
 const nPhil = 5
@@ -11,13 +12,6 @@ const nForks = 5
 var wg sync.WaitGroup
 
 func main() {
-	for i := 0; i < 1000; i++ {
-		go program()
-	}
-	wg.Wait()
-}
-
-func program() {
 	//Udlever forks til philo (async)
 	//Hvis man har 1 fork, print "thinking", og læg den ned igen.
 	//Udlever hele tiden indtil en får 2 forks.
@@ -40,6 +34,8 @@ func program() {
 
 		}(i)
 	}
+
+	wg.Wait()
 	//wg.Wait() //Blokere, venter på alle goroutines er færdige
 
 	//recieve message:
@@ -53,7 +49,7 @@ func Philosophers(id int, leftFork chan bool, rightFork chan bool) {
 	var timesEaten = 0
 	for true { //All should eat at least 3 times
 		fmt.Printf("Philosopher %d is thinking\n", id)
-		//time.Sleep(time.Millisecond * 500)
+		time.Sleep(time.Millisecond * 500)
 
 		//request forks, send message
 		fmt.Printf("Philosopher %d request forks\n", id)
@@ -64,6 +60,7 @@ func Philosophers(id int, leftFork chan bool, rightFork chan bool) {
 		//OBS: Der skal være en betingelse, at når en af dem er true, og den anden er false, så realeaser man (deadlock)
 		timesEaten += 1
 		fmt.Printf("Philosopher %d has eaten for the %dth time; releasing forks\n", id, timesEaten)
+		time.Sleep(time.Millisecond * 500)
 		leftFork <- true
 		rightFork <- true
 
