@@ -7,6 +7,7 @@ import (
 )
 
 const nPhil = 5
+const nForks = 5
 
 func main() {
 	//Udlever forks til philo (async)
@@ -14,24 +15,31 @@ func main() {
 	//Udlever hele tiden indtil en får 2 forks.
 	//Hvis man har 2 forks, print "eating", og læg begge ned igen.
 	var wg sync.WaitGroup
-	wg.Add(1) //inkrementere med 1, der er 1 goroutine at vente på
 
-	leftFork := make(chan bool)
-	rightFork := make(chan bool)
+	forks := make([]chan bool, nForks)
+
+	for i := 0; i < nForks; i++ {
+		forks[i] = make(chan bool)
+		go func(i int) {
+			forks[i] <- true
+		}(i)
+
+	}
 
 	for i := 1; i <= nPhil; i++ {
-		go func() {
-			Philosophers(i, leftFork, rightFork)
+		wg.Add(1) //inkrementere med 1, der er 1 goroutine at vente på
+		go func(i int) {
+			Philosophers(i, forks[(i)%nForks], forks[(i+1)%nForks])
 			wg.Done() //dekrementere antal goroutines
-		}()
-
-		wg.Wait() //Blokere, venter på alle goroutines er færdige
-
-		//recieve message:
-		/* msg := <-leftFork
-		msg1 := <-rightFork
-		fmt.Println(i, msg, msg1) */
+		}(i)
 	}
+	wg.Wait() //Blokere, venter på alle goroutines er færdige
+
+	//recieve message:
+	/* msg := <-leftFork
+	msg1 := <-rightFork
+	fmt.Println(i, msg, msg1) */
+
 }
 
 func Philosophers(id int, leftFork chan bool, rightFork chan bool) {
