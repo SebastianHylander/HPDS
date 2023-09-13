@@ -1,3 +1,9 @@
+/*
+To prevent deadlocking we made use of circlular deadlock prevention, which allows the philosophers to wait
+their forks without causing a circular wait condition aka deadlock
+We found this method in the following article (section 10.2.2): https://lass.cs.umass.edu/~shenoy/courses/fall13/lectures/Lec10_notes.pdf
+*/
+
 package main
 
 import (
@@ -12,10 +18,6 @@ const nForks = 5
 var wg sync.WaitGroup
 
 func main() {
-	//Udlever forks til philo (async)
-	//Hvis man har 1 fork, print "thinking", og læg den ned igen.
-	//Udlever hele tiden indtil en får 2 forks.
-	//Hvis man har 2 forks, print "eating", og læg begge ned igen.
 
 	forks := make([]chan bool, nForks)
 
@@ -24,49 +26,51 @@ func main() {
 		go func(i int) {
 			forks[i] <- true
 		}(i)
-
 	}
 
 	for i := 1; i <= nPhil; i++ {
-		wg.Add(1) //inkrementere med 1, der er 1 goroutine at vente på
+		wg.Add(1) //increments the amount of nonfinished go-routines
 		go func(i int) {
 			Philosophers(i, forks[(i)%nForks], forks[(i+1)%nForks])
-
 		}(i)
 	}
-
 	wg.Wait()
-	//wg.Wait() //Blokere, venter på alle goroutines er færdige
-
-	//recieve message:
-	/* msg := <-leftFork
-	msg1 := <-rightFork
-	fmt.Println(i, msg, msg1) */
 
 }
 
 func Philosophers(id int, leftFork chan bool, rightFork chan bool) {
 	var timesEaten = 0
-	for true { //All should eat at least 3 times
+
+	for { //All should eat at least 3 times
 		fmt.Printf("Philosopher %d is thinking\n", id)
-		time.Sleep(time.Millisecond * 500)
+		time.Sleep(time.Millisecond * 500) //Timeout to give the philosopher a chance to think
 
 		//request forks, send message
-		fmt.Printf("Philosopher %d request forks\n", id)
-		<-leftFork
-		<-rightFork
+		//fmt.Printf("Philosopher %d request forks\n", id)
+		if id%2 == 0 {
+			<-leftFork
+			<-rightFork
+		} else {
+			<-rightFork
+			<-leftFork
+		}
 
 		//release forks
-		//OBS: Der skal være en betingelse, at når en af dem er true, og den anden er false, så realeaser man (deadlock)
 		timesEaten += 1
-		fmt.Printf("Philosopher %d has eaten for the %dth time; releasing forks\n", id, timesEaten)
-		time.Sleep(time.Millisecond * 500)
-		leftFork <- true
-		rightFork <- true
-
+		fmt.Printf("Philosopher %d is eating for the %d. time; releasing forks\n", id, timesEaten)
+		time.Sleep(time.Millisecond * 500) //Timeout to give the philosopher a chance to eat
 		if timesEaten == 3 {
 			fmt.Printf("Philosopher %d is Done\n", id)
-			wg.Done() //dekrementere antal goroutines
+			wg.Done() //decrements the amount of non-finished go-routines
+
 		}
+		if id%2 == 0 {
+			leftFork <- true
+			rightFork <- true
+		} else {
+			rightFork <- true
+			leftFork <- true
+		}
+
 	}
 }
