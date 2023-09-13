@@ -40,10 +40,14 @@ func Philosophers(id int, leftFork chan bool, rightFork chan bool) {
 		time.Sleep(time.Millisecond * 500)
 
 		//request forks, send message
-		fmt.Printf("Philosopher %d request forks\n", id)
-		<-leftFork
-		<-rightFork
-
+		if id%2 == 0 {
+			<-leftFork
+			<-rightFork
+		} else {
+			fmt.Printf("Philosopher %d request forks\n", id)
+			<-leftFork
+			<-rightFork
+		}
 		//release forks
 		timesEaten += 1
 		fmt.Printf("Philosopher %d has eaten for the %dth time; releasing forks\n", id, timesEaten)
