@@ -18,7 +18,6 @@ const nForks = 5
 var wg sync.WaitGroup
 
 func main() {
-
 	forks := make([]chan bool, nForks)
 
 	for i := 0; i < nForks; i++ {
@@ -35,7 +34,6 @@ func main() {
 		}(i)
 	}
 	wg.Wait()
-
 }
 
 func Philosophers(id int, leftFork chan bool, rightFork chan bool) {
@@ -47,13 +45,8 @@ func Philosophers(id int, leftFork chan bool, rightFork chan bool) {
 
 		//request forks, send message
 		//fmt.Printf("Philosopher %d request forks\n", id)
-		if id%2 == 0 {
-			<-leftFork
-			<-rightFork
-		} else {
-			<-rightFork
-			<-leftFork
-		}
+		<-leftFork
+		<-rightFork
 
 		//release forks
 		timesEaten += 1
