@@ -12,11 +12,6 @@ const nForks = 5
 var wg sync.WaitGroup
 
 func main() {
-	//Udlever forks til philo (async)
-	//Hvis man har 1 fork, print "thinking", og læg den ned igen.
-	//Udlever hele tiden indtil en får 2 forks.
-	//Hvis man har 2 forks, print "eating", og læg begge ned igen.
-
 	forks := make([]chan bool, nForks)
 
 	for i := 0; i < nForks; i++ {
@@ -24,7 +19,6 @@ func main() {
 		go func(i int) {
 			forks[i] <- true
 		}(i)
-
 	}
 
 	for i := 1; i <= nPhil; i++ {
@@ -37,12 +31,6 @@ func main() {
 
 	wg.Wait()
 	//wg.Wait() //Blokere, venter på alle goroutines er færdige
-
-	//recieve message:
-	/* msg := <-leftFork
-	msg1 := <-rightFork
-	fmt.Println(i, msg, msg1) */
-
 }
 
 func Philosophers(id int, leftFork chan bool, rightFork chan bool) {
@@ -57,7 +45,6 @@ func Philosophers(id int, leftFork chan bool, rightFork chan bool) {
 		<-rightFork
 
 		//release forks
-		//OBS: Der skal være en betingelse, at når en af dem er true, og den anden er false, så realeaser man (deadlock)
 		timesEaten += 1
 		fmt.Printf("Philosopher %d has eaten for the %dth time; releasing forks\n", id, timesEaten)
 		time.Sleep(time.Millisecond * 500)
