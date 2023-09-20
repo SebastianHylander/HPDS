@@ -1,7 +1,8 @@
 /*
 To prevent deadlocking we made use of circlular deadlock prevention, which allows the philosophers to wait
 their forks without causing a circular wait condition aka deadlock
-We found this method in the following article (section 10.2.2): https://lass.cs.umass.edu/~shenoy/courses/fall13/lectures/Lec10_notes.pdf
+We found this method in the following article (section 10.2.2):
+https://lass.cs.umass.edu/~shenoy/courses/fall13/lectures/Lec10_notes.pdf
 */
 
 package main
@@ -29,6 +30,9 @@ func main() {
 
 	for i := 1; i <= nPhil; i++ {
 		wg.Add(1) //increments the amount of nonfinished go-routines
+		go func(i int) {
+			Fork(forks[i%nForks])
+		}(i)
 		go func(i int) {
 			Philosophers(i, forks[(i)%nForks], forks[(i+1)%nForks])
 		}(i)
@@ -66,4 +70,13 @@ func Philosophers(id int, leftFork chan bool, rightFork chan bool) {
 		}
 
 	}
+}
+
+func Fork(place chan bool) {
+
+	for {
+		var fork = <-place
+		place <- fork
+	}
+
 }
