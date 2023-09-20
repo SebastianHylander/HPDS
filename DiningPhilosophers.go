@@ -73,10 +73,8 @@ func Philosophers(id int, leftFork chan bool, rightFork chan bool) {
 }
 
 func Fork(place chan bool) {
-
 	for {
 		var fork = <-place
 		place <- fork
 	}
-
 }
