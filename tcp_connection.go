@@ -44,8 +44,12 @@ func connect(ip string) {
 	if err != nil {
 		// handle error
 	}
-	fmt.Fprintf(conn, "GET / HTTP/1.0\r\n\r\n")
-
+	//fmt.Fprintf(conn, "GET / HTTP/1.0\r\n\r\n")
+	//status, err := bufio.NewReader(conn).ReadString('\n')
+	//fmt.Println(status)
+	buffer := make([]byte, 1024)
+	n, err := conn.Read(buffer)
+	fmt.Println(string(buffer[:n]))
 }
 
 func host() {
@@ -63,5 +67,5 @@ func host() {
 }
 
 func handleConnection(conn net.Conn) {
-	fmt.Println("I GOT A REQUEST!!!!!!")
+	conn.Write([]byte("Hello Client"))
 }
