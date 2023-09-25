@@ -2,7 +2,10 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"net"
+	"strconv"
+	"strings"
 )
 
 func main() {
@@ -26,7 +29,6 @@ func main() {
 			fmt.Println("Invalid input!")
 		}
 	}
-
 }
 
 func getIp() {
@@ -44,12 +46,20 @@ func connect(ip string) {
 	if err != nil {
 		// handle error
 	}
-	//fmt.Fprintf(conn, "GET / HTTP/1.0\r\n\r\n")
-	//status, err := bufio.NewReader(conn).ReadString('\n')
-	//fmt.Println(status)
-	buffer := make([]byte, 1024)
-	n, err := conn.Read(buffer)
-	fmt.Println(string(buffer[:n]))
+	seq := rand.Intn(10000)
+	fmt.Println("Establishing connection sending seq '" + strconv.Itoa(seq) + "' to host")
+	conn.Write([]byte(strconv.Itoa(seq)))
+	output := strings.Split(read(conn), " ")
+
+	seqreturn, _ := strconv.Atoi(output[0][2:])
+	ack, _ := strconv.Atoi(output[1][2:])
+
+	fmt.Println("Recieved seq '" + strconv.Itoa(seqreturn) + "' and ack '" + strconv.Itoa(ack) + "'")
+	fmt.Println("Connection established! Sending message!")
+	acknowlegde := "x=" + strconv.Itoa(seqreturn) + " y=" + strconv.Itoa(ack+1)
+	write(conn, acknowlegde)
+	write(conn, "Hello Host! I can feel a connection between us!")
+
 }
 
 func host() {
@@ -67,5 +77,35 @@ func host() {
 }
 
 func handleConnection(conn net.Conn) {
-	conn.Write([]byte("Hello Client"))
+	seq := read(conn)
+	seqNumber, _ := strconv.Atoi(seq)
+	fmt.Println("Received seq '" + seq + "' from client!")
+	ack := strconv.Itoa(rand.Intn(10000))
+	seqNumber = seqNumber + 1
+	acknowlegde := "x=" + strconv.Itoa(seqNumber) + " y=" + ack
+	fmt.Println("Sending ack '" + strconv.Itoa((seqNumber)) + "' and new seq '" + ack + "' back to the client!")
+	write(conn, acknowlegde)
+	output := strings.Split(read(conn), " ")
+
+	ackreturn, _ := strconv.Atoi(output[0][2:])
+	seqreturn, _ := strconv.Atoi(output[1][2:])
+
+	fmt.Println("Recieved seq '" + strconv.Itoa(ackreturn) + "' and ack '" + strconv.Itoa(seqreturn) + "'")
+	fmt.Print("Message from Client: ")
+	fmt.Println(read(conn))
+}
+
+func read(conn net.Conn) string {
+	buffer := make([]byte, 1024)
+	n, err := conn.Read(buffer)
+	if err != nil {
+		// handle error
+	}
+	output := string(buffer[:n])
+
+	return output
+}
+
+func write(conn net.Conn, message string) {
+	conn.Write([]byte(message))
 }
