@@ -1,0 +1,36 @@
+syntax = "proto3";
+option go_package = "grpc/proto";
+
+message Connection {
+  int64 clientId = 1;
+  string username = 2;
+  int64 timestamp = 3;
+}
+
+message Disconnection {
+  int64 clientId = 1;
+  int64 timestamp = 2;
+}
+
+message ClientMessage {
+  int64 clientId = 1;
+  string message = 2;
+  int64 timestamp = 3;
+}
+
+message ServerMessage {
+  string username = 1;
+  string message = 2;
+  int64 timestamp = 3;
+}
+message Empty{}
+
+service SendClientMessage {
+  rpc SendClientMessage(ClientMessage) returns (Empty);
+}
+service Connect {
+  rpc ConnectClient(Connection) returns (stream ServerMessage);
+}
+service Disconnect{
+  rpc DisconnectClient(Disconnection) returns (Empty);
+}
