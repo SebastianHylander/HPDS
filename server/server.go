@@ -68,22 +68,6 @@ func startServer(server *Server) {
 	}
 }
 
-func ConnectClient(ctx context.Context, in *proto.Connection, opts ...grpc.CallOption) (proto.ChittyChat_ConnectClientClient, error) {
-	users[int(in.GetClientId())] = in.GetUsername()
-
-	/*log.Printf("Client with ID %d asked for the time\n", in.ClientId)
-	startTime := time.Now().Unix()
-	time.Sleep(time.Millisecond * 3498)
-	endTime := time.Now().Unix()
-	return &proto.TimeMessage{
-		StartTime:  startTime,
-		ServerName: c.name,
-		EndTime:    endTime,
-	}, nil
-	*/
-
-}
-
 func (c *Server) DisconnectClient(ctx context.Context, in *proto.Disconnection) (*proto.Empty, error) {
 	return &proto.Empty{}, nil
 }
