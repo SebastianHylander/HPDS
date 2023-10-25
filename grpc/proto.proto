@@ -1,6 +1,12 @@
 syntax = "proto3";
 option go_package = "grpc/proto";
 
+message Connection {
+  int64 clientId = 1;
+  string username = 2;
+  int64 timestamp = 3;
+}
+
 message Disconnection {
   int64 clientId = 1;
   int64 timestamp = 2;
@@ -21,6 +27,6 @@ message Empty{}
 
 service ChittyChat {
   rpc SendClientMessage(ClientMessage) returns (Empty);
-  rpc ConnectClient(stream ServerMessage) returns (stream ServerMessage);
+  rpc ConnectClient(Connection) returns (stream ServerMessage);
   rpc DisconnectClient(Disconnection) returns (Empty);
 }

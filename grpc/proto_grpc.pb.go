@@ -29,7 +29,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ChittyChatClient interface {
 	SendClientMessage(ctx context.Context, in *ClientMessage, opts ...grpc.CallOption) (*Empty, error)
-	ConnectClient(ctx context.Context, opts ...grpc.CallOption) (ChittyChat_ConnectClientClient, error)
+	ConnectClient(ctx context.Context, in *Connection, opts ...grpc.CallOption) (ChittyChat_ConnectClientClient, error)
 	DisconnectClient(ctx context.Context, in *Disconnection, opts ...grpc.CallOption) (*Empty, error)
 }
 
@@ -50,27 +50,28 @@ func (c *chittyChatClient) SendClientMessage(ctx context.Context, in *ClientMess
 	return out, nil
 }
 
-func (c *chittyChatClient) ConnectClient(ctx context.Context, opts ...grpc.CallOption) (ChittyChat_ConnectClientClient, error) {
+func (c *chittyChatClient) ConnectClient(ctx context.Context, in *Connection, opts ...grpc.CallOption) (ChittyChat_ConnectClientClient, error) {
 	stream, err := c.cc.NewStream(ctx, &ChittyChat_ServiceDesc.Streams[0], ChittyChat_ConnectClient_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
 	}
 	x := &chittyChatConnectClientClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
 	return x, nil
 }
 
 type ChittyChat_ConnectClientClient interface {
-	Send(*ServerMessage) error
 	Recv() (*ServerMessage, error)
 	grpc.ClientStream
 }
 
 type chittyChatConnectClientClient struct {
 	grpc.ClientStream
-}
-
-func (x *chittyChatConnectClientClient) Send(m *ServerMessage) error {
-	return x.ClientStream.SendMsg(m)
 }
 
 func (x *chittyChatConnectClientClient) Recv() (*ServerMessage, error) {
@@ -95,7 +96,7 @@ func (c *chittyChatClient) DisconnectClient(ctx context.Context, in *Disconnecti
 // for forward compatibility
 type ChittyChatServer interface {
 	SendClientMessage(context.Context, *ClientMessage) (*Empty, error)
-	ConnectClient(ChittyChat_ConnectClientServer) error
+	ConnectClient(*Connection, ChittyChat_ConnectClientServer) error
 	DisconnectClient(context.Context, *Disconnection) (*Empty, error)
 	mustEmbedUnimplementedChittyChatServer()
 }
@@ -107,7 +108,7 @@ type UnimplementedChittyChatServer struct {
 func (UnimplementedChittyChatServer) SendClientMessage(context.Context, *ClientMessage) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendClientMessage not implemented")
 }
-func (UnimplementedChittyChatServer) ConnectClient(ChittyChat_ConnectClientServer) error {
+func (UnimplementedChittyChatServer) ConnectClient(*Connection, ChittyChat_ConnectClientServer) error {
 	return status.Errorf(codes.Unimplemented, "method ConnectClient not implemented")
 }
 func (UnimplementedChittyChatServer) DisconnectClient(context.Context, *Disconnection) (*Empty, error) {
@@ -145,12 +146,15 @@ func _ChittyChat_SendClientMessage_Handler(srv interface{}, ctx context.Context,
 }
 
 func _ChittyChat_ConnectClient_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(ChittyChatServer).ConnectClient(&chittyChatConnectClientServer{stream})
+	m := new(Connection)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(ChittyChatServer).ConnectClient(m, &chittyChatConnectClientServer{stream})
 }
 
 type ChittyChat_ConnectClientServer interface {
 	Send(*ServerMessage) error
-	Recv() (*ServerMessage, error)
 	grpc.ServerStream
 }
 
@@ -160,14 +164,6 @@ type chittyChatConnectClientServer struct {
 
 func (x *chittyChatConnectClientServer) Send(m *ServerMessage) error {
 	return x.ServerStream.SendMsg(m)
-}
-
-func (x *chittyChatConnectClientServer) Recv() (*ServerMessage, error) {
-	m := new(ServerMessage)
-	if err := x.ServerStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
 }
 
 func _ChittyChat_DisconnectClient_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -209,7 +205,6 @@ var ChittyChat_ServiceDesc = grpc.ServiceDesc{
 			StreamName:    "ConnectClient",
 			Handler:       _ChittyChat_ConnectClient_Handler,
 			ServerStreams: true,
-			ClientStreams: true,
 		},
 	},
 	Metadata: "grpc/proto.proto",

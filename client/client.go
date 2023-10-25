@@ -15,13 +15,13 @@ import (
 )
 
 type Client struct {
-	id         int
+	id         int64
 	username   string
-	portNumber int
+	portNumber int64
 }
 
 var (
-	clientPort = flag.Int("cPort", 0, "client port number")
+	clientPort = flag.Int64("cPort", 0, "client port number")
 	serverPort = flag.Int("sPort", 0, "server port number (should match the port used for the server)")
 )
 
@@ -47,7 +47,11 @@ func waitForMessage(client *Client) {
 	// Connect to the server
 	serverConnection, _ := connectToServer()
 
-	stream, _ := serverConnection.ConnectClient(context.Background())
+	stream, _ := serverConnection.ConnectClient(context.Background(), &proto.Connection{
+		ClientId:  *clientPort,
+		Username:  "User!!",
+		Timestamp: 0,
+	})
 
 	go logMessages(stream)
 

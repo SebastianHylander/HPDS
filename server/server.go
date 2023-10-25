@@ -23,7 +23,7 @@ type Server struct {
 var port = flag.Int("port", 0, "server port number")
 
 var users map[int]string
-var messageStreams []proto.ChittyChat_ConnectClientServer
+var messageStreams []chan proto.ServerMessage
 
 func main() {
 	// Get the port from the command line when the server is run
@@ -47,7 +47,7 @@ func main() {
 func startServer(server *Server) {
 
 	users = make(map[int]string)
-	messageStreams = make([]proto.ChittyChat_ConnectClientServer, 0)
+	messageStreams = make([]chan proto.ServerMessage, 0)
 
 	// Create a new grpc server
 	grpcServer := grpc.NewServer()
@@ -67,8 +67,14 @@ func startServer(server *Server) {
 		log.Fatalf("Could not serve listener")
 	}
 }
-func (c *Server) ConnectClient(stream proto.ChittyChat_ConnectClientServer) error {
-	messageStreams = append(messageStreams, stream)
+func (c *Server) ConnectClient(in *proto.Connection, stream proto.ChittyChat_ConnectClientServer) error {
+	msgChan := make(chan proto.ServerMessage)
+	messageStreams = append(messageStreams, msgChan)
+	for {
+		msg := <-msgChan
+		log.Println("Sending message!")
+		stream.Send(&msg)
+	}
 	return nil
 }
 
@@ -79,11 +85,11 @@ func (c *Server) DisconnectClient(ctx context.Context, in *proto.Disconnection) 
 func (c *Server) SendClientMessage(ctx context.Context, in *proto.ClientMessage) (*proto.Empty, error) {
 	log.Println(in.Message)
 	for i := 0; i < len(messageStreams); i++ {
-		messageStreams[i].Send(&proto.ServerMessage{
+		messageStreams[i] <- proto.ServerMessage{
 			Username:  "user",
 			Message:   in.Message,
 			Timestamp: 0,
-		})
+		}
 	}
 	return &proto.Empty{}, nil
 }
