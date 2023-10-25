@@ -7,7 +7,6 @@ import (
 	"log"
 	"os"
 	"strconv"
-	"time"
 
 	proto "github.com/SebastianHylander/HPDS/grpc"
 
@@ -37,54 +36,37 @@ func main() {
 	}
 
 	// Wait for the client (user) to ask for the time
-	go waitForTimeRequest(client)
+	go waitForMessage(client)
 
 	for {
 
 	}
 }
 
-func waitForTimeRequest(client *Client) {
+func waitForMessage(client *Client) {
 	// Connect to the server
 	serverConnection, _ := connectToServer()
+
+	stream, _ := serverConnection.ConnectClient(context.Background())
+
+	go logMessages(stream)
 
 	// Wait for input in the client terminal
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		input := scanner.Text()
-		log.Printf("Client asked for time with input: %s\n", input)
-
-		clientStartTime := time.Now()
 
 		// Ask the server for the time
-		timeReturnMessage, err := serverConnection.AskForTime(context.Background(), &proto.AskForTimeMessage{
-			ClientId: int64(client.id),
+		serverConnection.SendClientMessage(context.Background(), &proto.ClientMessage{
+			ClientId:  int64(client.id),
+			Message:   input,
+			Timestamp: 0,
 		})
-		clientEndTime := time.Now()
 
-		if err != nil {
-			log.Printf(err.Error())
-		} else {
-			serverStartTime := time.Unix(timeReturnMessage.StartTime, 0)
-			serverEndTime := time.Unix(timeReturnMessage.EndTime, 0)
-
-			totalTimeElapsed := clientEndTime.Sub(clientStartTime)
-			elapsedAtServer := serverEndTime.Sub(serverStartTime)
-			transportTime := elapsedAtServer - totalTimeElapsed
-
-			newClientTime := serverEndTime.Add(transportTime / 2)
-
-			log.Printf("Time since message arrived to the server: %s\n", time.Since(serverStartTime))
-			log.Printf("The time elapsed at the server was: %s\n", elapsedAtServer)
-			log.Printf("The time used on transport was: %s\n", transportTime.String())
-			log.Printf("The client's current time is: %s\n", time.Now().String())
-			log.Printf("The client should change their time to: %s\n", newClientTime.String())
-
-		}
 	}
 }
 
-func connectToServer() (proto.TimeAskClient, error) {
+func connectToServer() (proto.ChittyChatClient, error) {
 	// Dial the server at the specified port.
 	conn, err := grpc.Dial("localhost:"+strconv.Itoa(*serverPort), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -92,5 +74,20 @@ func connectToServer() (proto.TimeAskClient, error) {
 	} else {
 		log.Printf("Connected to the server at port %d\n", *serverPort)
 	}
-	return proto.NewTimeAskClient(conn), nil
+	return proto.NewChittyChatClient(conn), nil
+}
+
+func logMessages(stream proto.ChittyChat_ConnectClientClient) {
+	for {
+		message, _ := stream.Recv()
+
+		if message != nil {
+			log.Print(message.Timestamp)
+			log.Print(" - ")
+			log.Print(message.Username)
+			log.Print(" : ")
+			log.Println(message.Message)
+		}
+
+	}
 }

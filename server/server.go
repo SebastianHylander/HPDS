@@ -23,7 +23,7 @@ type Server struct {
 var port = flag.Int("port", 0, "server port number")
 
 var users map[int]string
-var messageStreams []*grpc.ClientStream
+var messageStreams []proto.ChittyChat_ConnectClientServer
 
 func main() {
 	// Get the port from the command line when the server is run
@@ -47,7 +47,7 @@ func main() {
 func startServer(server *Server) {
 
 	users = make(map[int]string)
-	messageStreams = make([]*grpc.ClientStream, 0)
+	messageStreams = make([]proto.ChittyChat_ConnectClientServer, 0)
 
 	// Create a new grpc server
 	grpcServer := grpc.NewServer()
@@ -67,11 +67,23 @@ func startServer(server *Server) {
 		log.Fatalf("Could not serve listener")
 	}
 }
+func (c *Server) ConnectClient(stream proto.ChittyChat_ConnectClientServer) error {
+	messageStreams = append(messageStreams, stream)
+	return nil
+}
 
 func (c *Server) DisconnectClient(ctx context.Context, in *proto.Disconnection) (*proto.Empty, error) {
 	return &proto.Empty{}, nil
 }
 
 func (c *Server) SendClientMessage(ctx context.Context, in *proto.ClientMessage) (*proto.Empty, error) {
+	log.Println(in.Message)
+	for i := 0; i < len(messageStreams); i++ {
+		messageStreams[i].Send(&proto.ServerMessage{
+			Username:  "user",
+			Message:   in.Message,
+			Timestamp: 0,
+		})
+	}
 	return &proto.Empty{}, nil
 }
