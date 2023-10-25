@@ -19,120 +19,43 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	SendClientMessage_SendClientMessage_FullMethodName = "/SendClientMessage/SendClientMessage"
+	ChittyChat_SendClientMessage_FullMethodName = "/ChittyChat/SendClientMessage"
+	ChittyChat_ConnectClient_FullMethodName     = "/ChittyChat/ConnectClient"
+	ChittyChat_DisconnectClient_FullMethodName  = "/ChittyChat/DisconnectClient"
 )
 
-// SendClientMessageClient is the client API for SendClientMessage service.
+// ChittyChatClient is the client API for ChittyChat service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type SendClientMessageClient interface {
+type ChittyChatClient interface {
 	SendClientMessage(ctx context.Context, in *ClientMessage, opts ...grpc.CallOption) (*Empty, error)
+	ConnectClient(ctx context.Context, in *Connection, opts ...grpc.CallOption) (ChittyChat_ConnectClientClient, error)
+	DisconnectClient(ctx context.Context, in *Disconnection, opts ...grpc.CallOption) (*Empty, error)
 }
 
-type sendClientMessageClient struct {
+type chittyChatClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewSendClientMessageClient(cc grpc.ClientConnInterface) SendClientMessageClient {
-	return &sendClientMessageClient{cc}
+func NewChittyChatClient(cc grpc.ClientConnInterface) ChittyChatClient {
+	return &chittyChatClient{cc}
 }
 
-func (c *sendClientMessageClient) SendClientMessage(ctx context.Context, in *ClientMessage, opts ...grpc.CallOption) (*Empty, error) {
+func (c *chittyChatClient) SendClientMessage(ctx context.Context, in *ClientMessage, opts ...grpc.CallOption) (*Empty, error) {
 	out := new(Empty)
-	err := c.cc.Invoke(ctx, SendClientMessage_SendClientMessage_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ChittyChat_SendClientMessage_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// SendClientMessageServer is the server API for SendClientMessage service.
-// All implementations must embed UnimplementedSendClientMessageServer
-// for forward compatibility
-type SendClientMessageServer interface {
-	SendClientMessage(context.Context, *ClientMessage) (*Empty, error)
-	mustEmbedUnimplementedSendClientMessageServer()
-}
-
-// UnimplementedSendClientMessageServer must be embedded to have forward compatible implementations.
-type UnimplementedSendClientMessageServer struct {
-}
-
-func (UnimplementedSendClientMessageServer) SendClientMessage(context.Context, *ClientMessage) (*Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SendClientMessage not implemented")
-}
-func (UnimplementedSendClientMessageServer) mustEmbedUnimplementedSendClientMessageServer() {}
-
-// UnsafeSendClientMessageServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to SendClientMessageServer will
-// result in compilation errors.
-type UnsafeSendClientMessageServer interface {
-	mustEmbedUnimplementedSendClientMessageServer()
-}
-
-func RegisterSendClientMessageServer(s grpc.ServiceRegistrar, srv SendClientMessageServer) {
-	s.RegisterService(&SendClientMessage_ServiceDesc, srv)
-}
-
-func _SendClientMessage_SendClientMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ClientMessage)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SendClientMessageServer).SendClientMessage(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SendClientMessage_SendClientMessage_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SendClientMessageServer).SendClientMessage(ctx, req.(*ClientMessage))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-// SendClientMessage_ServiceDesc is the grpc.ServiceDesc for SendClientMessage service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var SendClientMessage_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "SendClientMessage",
-	HandlerType: (*SendClientMessageServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "SendClientMessage",
-			Handler:    _SendClientMessage_SendClientMessage_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "grpc/proto.proto",
-}
-
-const (
-	Connect_ConnectClient_FullMethodName = "/Connect/ConnectClient"
-)
-
-// ConnectClient is the client API for Connect service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type ConnectClient interface {
-	ConnectClient(ctx context.Context, in *Connection, opts ...grpc.CallOption) (Connect_ConnectClientClient, error)
-}
-
-type connectClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewConnectClient(cc grpc.ClientConnInterface) ConnectClient {
-	return &connectClient{cc}
-}
-
-func (c *connectClient) ConnectClient(ctx context.Context, in *Connection, opts ...grpc.CallOption) (Connect_ConnectClientClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Connect_ServiceDesc.Streams[0], Connect_ConnectClient_FullMethodName, opts...)
+func (c *chittyChatClient) ConnectClient(ctx context.Context, in *Connection, opts ...grpc.CallOption) (ChittyChat_ConnectClientClient, error) {
+	stream, err := c.cc.NewStream(ctx, &ChittyChat_ServiceDesc.Streams[0], ChittyChat_ConnectClient_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &connectConnectClientClient{stream}
+	x := &chittyChatConnectClientClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -142,16 +65,16 @@ func (c *connectClient) ConnectClient(ctx context.Context, in *Connection, opts 
 	return x, nil
 }
 
-type Connect_ConnectClientClient interface {
+type ChittyChat_ConnectClientClient interface {
 	Recv() (*ServerMessage, error)
 	grpc.ClientStream
 }
 
-type connectConnectClientClient struct {
+type chittyChatConnectClientClient struct {
 	grpc.ClientStream
 }
 
-func (x *connectConnectClientClient) Recv() (*ServerMessage, error) {
+func (x *chittyChatConnectClientClient) Recv() (*ServerMessage, error) {
 	m := new(ServerMessage)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -159,158 +82,130 @@ func (x *connectConnectClientClient) Recv() (*ServerMessage, error) {
 	return m, nil
 }
 
-// ConnectServer is the server API for Connect service.
-// All implementations must embed UnimplementedConnectServer
-// for forward compatibility
-type ConnectServer interface {
-	ConnectClient(*Connection, Connect_ConnectClientServer) error
-	mustEmbedUnimplementedConnectServer()
-}
-
-// UnimplementedConnectServer must be embedded to have forward compatible implementations.
-type UnimplementedConnectServer struct {
-}
-
-func (UnimplementedConnectServer) ConnectClient(*Connection, Connect_ConnectClientServer) error {
-	return status.Errorf(codes.Unimplemented, "method ConnectClient not implemented")
-}
-func (UnimplementedConnectServer) mustEmbedUnimplementedConnectServer() {}
-
-// UnsafeConnectServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to ConnectServer will
-// result in compilation errors.
-type UnsafeConnectServer interface {
-	mustEmbedUnimplementedConnectServer()
-}
-
-func RegisterConnectServer(s grpc.ServiceRegistrar, srv ConnectServer) {
-	s.RegisterService(&Connect_ServiceDesc, srv)
-}
-
-func _Connect_ConnectClient_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(Connection)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
-	}
-	return srv.(ConnectServer).ConnectClient(m, &connectConnectClientServer{stream})
-}
-
-type Connect_ConnectClientServer interface {
-	Send(*ServerMessage) error
-	grpc.ServerStream
-}
-
-type connectConnectClientServer struct {
-	grpc.ServerStream
-}
-
-func (x *connectConnectClientServer) Send(m *ServerMessage) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-// Connect_ServiceDesc is the grpc.ServiceDesc for Connect service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var Connect_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "Connect",
-	HandlerType: (*ConnectServer)(nil),
-	Methods:     []grpc.MethodDesc{},
-	Streams: []grpc.StreamDesc{
-		{
-			StreamName:    "ConnectClient",
-			Handler:       _Connect_ConnectClient_Handler,
-			ServerStreams: true,
-		},
-	},
-	Metadata: "grpc/proto.proto",
-}
-
-const (
-	Disconnect_DisconnectClient_FullMethodName = "/Disconnect/DisconnectClient"
-)
-
-// DisconnectClient is the client API for Disconnect service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type DisconnectClient interface {
-	DisconnectClient(ctx context.Context, in *Disconnection, opts ...grpc.CallOption) (*Empty, error)
-}
-
-type disconnectClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewDisconnectClient(cc grpc.ClientConnInterface) DisconnectClient {
-	return &disconnectClient{cc}
-}
-
-func (c *disconnectClient) DisconnectClient(ctx context.Context, in *Disconnection, opts ...grpc.CallOption) (*Empty, error) {
+func (c *chittyChatClient) DisconnectClient(ctx context.Context, in *Disconnection, opts ...grpc.CallOption) (*Empty, error) {
 	out := new(Empty)
-	err := c.cc.Invoke(ctx, Disconnect_DisconnectClient_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ChittyChat_DisconnectClient_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// DisconnectServer is the server API for Disconnect service.
-// All implementations must embed UnimplementedDisconnectServer
+// ChittyChatServer is the server API for ChittyChat service.
+// All implementations must embed UnimplementedChittyChatServer
 // for forward compatibility
-type DisconnectServer interface {
+type ChittyChatServer interface {
+	SendClientMessage(context.Context, *ClientMessage) (*Empty, error)
+	ConnectClient(*Connection, ChittyChat_ConnectClientServer) error
 	DisconnectClient(context.Context, *Disconnection) (*Empty, error)
-	mustEmbedUnimplementedDisconnectServer()
+	mustEmbedUnimplementedChittyChatServer()
 }
 
-// UnimplementedDisconnectServer must be embedded to have forward compatible implementations.
-type UnimplementedDisconnectServer struct {
+// UnimplementedChittyChatServer must be embedded to have forward compatible implementations.
+type UnimplementedChittyChatServer struct {
 }
 
-func (UnimplementedDisconnectServer) DisconnectClient(context.Context, *Disconnection) (*Empty, error) {
+func (UnimplementedChittyChatServer) SendClientMessage(context.Context, *ClientMessage) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendClientMessage not implemented")
+}
+func (UnimplementedChittyChatServer) ConnectClient(*Connection, ChittyChat_ConnectClientServer) error {
+	return status.Errorf(codes.Unimplemented, "method ConnectClient not implemented")
+}
+func (UnimplementedChittyChatServer) DisconnectClient(context.Context, *Disconnection) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DisconnectClient not implemented")
 }
-func (UnimplementedDisconnectServer) mustEmbedUnimplementedDisconnectServer() {}
+func (UnimplementedChittyChatServer) mustEmbedUnimplementedChittyChatServer() {}
 
-// UnsafeDisconnectServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to DisconnectServer will
+// UnsafeChittyChatServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ChittyChatServer will
 // result in compilation errors.
-type UnsafeDisconnectServer interface {
-	mustEmbedUnimplementedDisconnectServer()
+type UnsafeChittyChatServer interface {
+	mustEmbedUnimplementedChittyChatServer()
 }
 
-func RegisterDisconnectServer(s grpc.ServiceRegistrar, srv DisconnectServer) {
-	s.RegisterService(&Disconnect_ServiceDesc, srv)
+func RegisterChittyChatServer(s grpc.ServiceRegistrar, srv ChittyChatServer) {
+	s.RegisterService(&ChittyChat_ServiceDesc, srv)
 }
 
-func _Disconnect_DisconnectClient_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ChittyChat_SendClientMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ClientMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChittyChatServer).SendClientMessage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ChittyChat_SendClientMessage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChittyChatServer).SendClientMessage(ctx, req.(*ClientMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ChittyChat_ConnectClient_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(Connection)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(ChittyChatServer).ConnectClient(m, &chittyChatConnectClientServer{stream})
+}
+
+type ChittyChat_ConnectClientServer interface {
+	Send(*ServerMessage) error
+	grpc.ServerStream
+}
+
+type chittyChatConnectClientServer struct {
+	grpc.ServerStream
+}
+
+func (x *chittyChatConnectClientServer) Send(m *ServerMessage) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func _ChittyChat_DisconnectClient_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Disconnection)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DisconnectServer).DisconnectClient(ctx, in)
+		return srv.(ChittyChatServer).DisconnectClient(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Disconnect_DisconnectClient_FullMethodName,
+		FullMethod: ChittyChat_DisconnectClient_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DisconnectServer).DisconnectClient(ctx, req.(*Disconnection))
+		return srv.(ChittyChatServer).DisconnectClient(ctx, req.(*Disconnection))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Disconnect_ServiceDesc is the grpc.ServiceDesc for Disconnect service.
+// ChittyChat_ServiceDesc is the grpc.ServiceDesc for ChittyChat service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Disconnect_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "Disconnect",
-	HandlerType: (*DisconnectServer)(nil),
+var ChittyChat_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "ChittyChat",
+	HandlerType: (*ChittyChatServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "SendClientMessage",
+			Handler:    _ChittyChat_SendClientMessage_Handler,
+		},
+		{
 			MethodName: "DisconnectClient",
-			Handler:    _Disconnect_DisconnectClient_Handler,
+			Handler:    _ChittyChat_DisconnectClient_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "ConnectClient",
+			Handler:       _ChittyChat_ConnectClient_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "grpc/proto.proto",
 }

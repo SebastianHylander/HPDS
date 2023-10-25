@@ -5,18 +5,18 @@ import (
 	"flag"
 	"log"
 	"net"
-	proto "simpleGuide/grpc"
 	"strconv"
-	"time"
+
+	proto "github.com/SebastianHylander/HPDS/grpc"
 
 	"google.golang.org/grpc"
 )
 
 // Struct that will be used to represent the Server.
 type Server struct {
-	proto.UnimplementedTimeAskServer // Necessary
-	name                             string
-	port                             int
+	proto.UnimplementedChittyChatServer // Necessary
+	name                                string
+	port                                int
 }
 
 // Used to get the user-defined port for the server from the command line
@@ -55,15 +55,15 @@ func startServer(server *Server) {
 	log.Printf("Started server at port: %d\n", server.port)
 
 	// Register the grpc server and serve its listener
-	proto.RegisterTimeAskServer(grpcServer, server)
+	proto.RegisterChittyChatServer(grpcServer, server)
 	serveError := grpcServer.Serve(listener)
 	if serveError != nil {
 		log.Fatalf("Could not serve listener")
 	}
 }
 
-func (c *Server) AskForTime(ctx context.Context, in *proto.AskForTimeMessage) (*proto.TimeMessage, error) {
-	log.Printf("Client with ID %d asked for the time\n", in.ClientId)
+func (c *Server) ConnectClient(ctx context.Context, in *proto.Connection) (*proto.Empty, error) {
+	/*log.Printf("Client with ID %d asked for the time\n", in.ClientId)
 	startTime := time.Now().Unix()
 	time.Sleep(time.Millisecond * 3498)
 	endTime := time.Now().Unix()
@@ -72,4 +72,10 @@ func (c *Server) AskForTime(ctx context.Context, in *proto.AskForTimeMessage) (*
 		ServerName: c.name,
 		EndTime:    endTime,
 	}, nil
+	*/
+	return &proto.Empty{}, nil
+}
+
+func (c *Server) DisconnectClient(ctx context.Context, in *proto.Disconnection) (*proto.Empty, error) {
+	return &proto.Empty{}, nil
 }

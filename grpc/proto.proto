@@ -25,12 +25,8 @@ message ServerMessage {
 }
 message Empty{}
 
-service SendClientMessage {
+service ChittyChat {
   rpc SendClientMessage(ClientMessage) returns (Empty);
-}
-service Connect {
   rpc ConnectClient(Connection) returns (stream ServerMessage);
-}
-service Disconnect{
   rpc DisconnectClient(Disconnection) returns (Empty);
 }

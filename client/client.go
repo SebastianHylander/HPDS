@@ -6,9 +6,10 @@ import (
 	"flag"
 	"log"
 	"os"
-	proto "simpleGuide/grpc"
 	"strconv"
 	"time"
+
+	proto "github.com/SebastianHylander/HPDS/grpc"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -16,6 +17,7 @@ import (
 
 type Client struct {
 	id         int
+	username   string
 	portNumber int
 }
 

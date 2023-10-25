@@ -1,4 +1,4 @@
-module github.com/EdwardR7/HPDS
+module github.com/SebastianHylander/HPDS
 
 go 1.21.0
 
