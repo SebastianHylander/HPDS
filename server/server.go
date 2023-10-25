@@ -22,6 +22,9 @@ type Server struct {
 // Used to get the user-defined port for the server from the command line
 var port = flag.Int("port", 0, "server port number")
 
+var users map[int]string
+var messageStreams []*grpc.ClientStream
+
 func main() {
 	// Get the port from the command line when the server is run
 	flag.Parse()
@@ -43,6 +46,9 @@ func main() {
 
 func startServer(server *Server) {
 
+	users = make(map[int]string)
+	messageStreams = make([]*grpc.ClientStream, 0)
+
 	// Create a new grpc server
 	grpcServer := grpc.NewServer()
 
@@ -62,7 +68,9 @@ func startServer(server *Server) {
 	}
 }
 
-func (c *Server) ConnectClient(ctx context.Context, in *proto.Connection) (*proto.Empty, error) {
+func ConnectClient(ctx context.Context, in *proto.Connection, opts ...grpc.CallOption) (proto.ChittyChat_ConnectClientClient, error) {
+	users[int(in.GetClientId())] = in.GetUsername()
+
 	/*log.Printf("Client with ID %d asked for the time\n", in.ClientId)
 	startTime := time.Now().Unix()
 	time.Sleep(time.Millisecond * 3498)
@@ -73,9 +81,13 @@ func (c *Server) ConnectClient(ctx context.Context, in *proto.Connection) (*prot
 		EndTime:    endTime,
 	}, nil
 	*/
-	return &proto.Empty{}, nil
+
 }
 
 func (c *Server) DisconnectClient(ctx context.Context, in *proto.Disconnection) (*proto.Empty, error) {
+	return &proto.Empty{}, nil
+}
+
+func (c *Server) SendClientMessage(ctx context.Context, in *proto.ClientMessage) (*proto.Empty, error) {
 	return &proto.Empty{}, nil
 }
