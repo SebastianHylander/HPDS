@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -23,24 +24,27 @@ type Client struct {
 var (
 	clientPort = flag.Int64("cPort", 0, "client port number")
 	serverPort = flag.Int("sPort", 0, "server port number (should match the port used for the server)")
+	username   = flag.String("username", "", "Display name in chat")
 )
 
+var time int64
+
 func main() {
+
+	time = 0
 	// Parse the flags to get the port for the client
 	flag.Parse()
 
 	// Create a client
 	client := &Client{
-		id:         1,
+		id:         *clientPort,
+		username:   *username,
 		portNumber: *clientPort,
 	}
 
 	// Wait for the client (user) to ask for the time
-	go waitForMessage(client)
+	waitForMessage(client)
 
-	for {
-
-	}
 }
 
 func waitForMessage(client *Client) {
@@ -49,9 +53,13 @@ func waitForMessage(client *Client) {
 
 	stream, _ := serverConnection.ConnectClient(context.Background(), &proto.Connection{
 		ClientId:  *clientPort,
-		Username:  "User!!",
-		Timestamp: 0,
+		Username:  *username,
+		Timestamp: time,
 	})
+
+	fmt.Println("Welcome to the chat!")
+	fmt.Println("Write messages to other clients online!")
+	fmt.Println("Leave the chat by writing 'disconnect'")
 
 	go logMessages(stream)
 
@@ -59,15 +67,24 @@ func waitForMessage(client *Client) {
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		input := scanner.Text()
+		time++
 
-		// Ask the server for the time
-		serverConnection.SendClientMessage(context.Background(), &proto.ClientMessage{
-			ClientId:  int64(client.id),
-			Message:   input,
-			Timestamp: 0,
-		})
+		if input == "disconnect" {
+			serverConnection.DisconnectClient(context.Background(), &proto.Disconnection{
+				ClientId:  int64(client.id),
+				Timestamp: time,
+			})
+			break
+		} else {
+			serverConnection.SendClientMessage(context.Background(), &proto.ClientMessage{
+				ClientId:  int64(client.id),
+				Message:   input,
+				Timestamp: time,
+			})
+		}
 
 	}
+
 }
 
 func connectToServer() (proto.ChittyChatClient, error) {
@@ -86,11 +103,13 @@ func logMessages(stream proto.ChittyChat_ConnectClientClient) {
 		message, _ := stream.Recv()
 
 		if message != nil {
-			log.Print(message.Timestamp)
-			log.Print(" - ")
-			log.Print(message.Username)
-			log.Print(" : ")
-			log.Println(message.Message)
+			if message.Timestamp > time {
+				time = message.Timestamp
+			}
+			time++
+
+			msgstring := strconv.Itoa(int(time)) + " - " + message.Username + ": " + message.Message
+			log.Println(msgstring)
 		}
 
 	}

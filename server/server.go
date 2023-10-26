@@ -23,7 +23,8 @@ type Server struct {
 var port = flag.Int("port", 0, "server port number")
 
 var users map[int]string
-var messageStreams []chan proto.ServerMessage
+var messageStreams map[int]chan proto.ServerMessage
+var time int64
 
 func main() {
 	// Get the port from the command line when the server is run
@@ -47,7 +48,8 @@ func main() {
 func startServer(server *Server) {
 
 	users = make(map[int]string)
-	messageStreams = make([]chan proto.ServerMessage, 0)
+	messageStreams = make(map[int]chan proto.ServerMessage, 0)
+	time = 0
 
 	// Create a new grpc server
 	grpcServer := grpc.NewServer()
@@ -68,28 +70,66 @@ func startServer(server *Server) {
 	}
 }
 func (c *Server) ConnectClient(in *proto.Connection, stream proto.ChittyChat_ConnectClientServer) error {
+	if in.Timestamp > time {
+		time = in.Timestamp
+	}
+	time++
+
 	msgChan := make(chan proto.ServerMessage)
-	messageStreams = append(messageStreams, msgChan)
-	for {
+	messageStreams[int(in.ClientId)] = msgChan
+	users[int(in.ClientId)] = in.Username
+
+	go sendMessageToChannels(proto.ServerMessage{
+		Username:  users[int(in.ClientId)],
+		Message:   "Joined the chat!",
+		Timestamp: time,
+	})
+
+	_, chanExists := messageStreams[int(in.ClientId)]
+
+	for chanExists {
 		msg := <-msgChan
-		log.Println("Sending message!")
 		stream.Send(&msg)
+		_, chanExists = messageStreams[int(in.ClientId)]
 	}
 	return nil
 }
 
 func (c *Server) DisconnectClient(ctx context.Context, in *proto.Disconnection) (*proto.Empty, error) {
+	if in.Timestamp > time {
+		time = in.Timestamp
+	}
+	time++
+
+	for _, channel := range messageStreams {
+		channel <- proto.ServerMessage{
+			Username:  users[int(in.ClientId)],
+			Message:   "Left the chat",
+			Timestamp: time,
+		}
+	}
+
+	delete(messageStreams, int(in.ClientId))
+	delete(users, int(in.ClientId))
 	return &proto.Empty{}, nil
 }
 
 func (c *Server) SendClientMessage(ctx context.Context, in *proto.ClientMessage) (*proto.Empty, error) {
-	log.Println(in.Message)
-	for i := 0; i < len(messageStreams); i++ {
-		messageStreams[i] <- proto.ServerMessage{
-			Username:  "user",
-			Message:   in.Message,
-			Timestamp: 0,
-		}
+	if in.Timestamp > time {
+		time = in.Timestamp
 	}
+	time++
+
+	sendMessageToChannels(proto.ServerMessage{
+		Username:  users[int(in.ClientId)],
+		Message:   in.Message,
+		Timestamp: time,
+	})
 	return &proto.Empty{}, nil
+}
+
+func sendMessageToChannels(message proto.ServerMessage) {
+	for _, channel := range messageStreams {
+		channel <- message
+	}
 }
