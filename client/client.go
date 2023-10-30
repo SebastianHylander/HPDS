@@ -108,7 +108,7 @@ func logMessages(stream proto.ChittyChat_ConnectClientClient) {
 			}
 			time++
 
-			msgstring := strconv.Itoa(int(time)) + " - " + message.Username + ": " + message.Message
+			msgstring := "At Lampert timestamp: " + strconv.Itoa(int(time)) + " - " + message.Username + ": " + message.Message
 			log.Println(msgstring)
 		}
 
