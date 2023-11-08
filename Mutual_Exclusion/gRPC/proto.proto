@@ -1,0 +1,16 @@
+syntax = "proto3";
+option go_package = "gRPC/proto";
+
+message nodeConnection {
+    int64 nodeId = 1;
+  }
+
+  message ServerMessage {
+    string message = 2;
+  }
+
+  message Empty{}
+
+service MutualExclusion {
+    rpc ConnectNode(nodeConnection) returns (stream ServerMessage);
+}
