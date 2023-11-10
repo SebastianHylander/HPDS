@@ -5,8 +5,8 @@ import (
 	"log"
 	"strconv"
 
+	proto "github.com/SebastianHylander/HPDS/Mutual_Exclusion/gRPC"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 type Node struct {
@@ -32,13 +32,13 @@ func waitForMessage(node *Node) {
 
 }
 
-func connectToServer() (proto.MutualExclusionNode, error) { //Hvordan laver vi denne
+func connectToServer() (proto.MutualExclusionClient, error) {
 	// Dial the server at the specified port.
-	conn, err := grpc.Dial("localhost:"+strconv.Itoa(*serverPort), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial("localhost:"+strconv.Itoa(*serverPort), grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Could not connect to port %d", *serverPort)
 	} else {
 		log.Printf("Connected to the server at port %d\n", *serverPort)
 	}
-	return proto.NewMutualExclusionClient(conn), nil //Hvordan laver vi denne
+	return proto.NewMutualExclusionClient(conn), nil
 }

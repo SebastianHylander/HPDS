@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	MutualExclusion_ConnectNode_FullMethodName = "/MutualExclusion/ConnectNode"
+	MutualExclusion_EnterCS_FullMethodName     = "/MutualExclusion/EnterCS"
 )
 
 // MutualExclusionClient is the client API for MutualExclusion service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MutualExclusionClient interface {
 	ConnectNode(ctx context.Context, in *NodeConnection, opts ...grpc.CallOption) (MutualExclusion_ConnectNodeClient, error)
+	EnterCS(ctx context.Context, in *RequestEnterCS, opts ...grpc.CallOption) (*ResponseEnterCS, error)
 }
 
 type mutualExclusionClient struct {
@@ -69,11 +71,21 @@ func (x *mutualExclusionConnectNodeClient) Recv() (*ServerMessage, error) {
 	return m, nil
 }
 
+func (c *mutualExclusionClient) EnterCS(ctx context.Context, in *RequestEnterCS, opts ...grpc.CallOption) (*ResponseEnterCS, error) {
+	out := new(ResponseEnterCS)
+	err := c.cc.Invoke(ctx, MutualExclusion_EnterCS_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MutualExclusionServer is the server API for MutualExclusion service.
 // All implementations must embed UnimplementedMutualExclusionServer
 // for forward compatibility
 type MutualExclusionServer interface {
 	ConnectNode(*NodeConnection, MutualExclusion_ConnectNodeServer) error
+	EnterCS(context.Context, *RequestEnterCS) (*ResponseEnterCS, error)
 	mustEmbedUnimplementedMutualExclusionServer()
 }
 
@@ -83,6 +95,9 @@ type UnimplementedMutualExclusionServer struct {
 
 func (UnimplementedMutualExclusionServer) ConnectNode(*NodeConnection, MutualExclusion_ConnectNodeServer) error {
 	return status.Errorf(codes.Unimplemented, "method ConnectNode not implemented")
+}
+func (UnimplementedMutualExclusionServer) EnterCS(context.Context, *RequestEnterCS) (*ResponseEnterCS, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EnterCS not implemented")
 }
 func (UnimplementedMutualExclusionServer) mustEmbedUnimplementedMutualExclusionServer() {}
 
@@ -118,13 +133,36 @@ func (x *mutualExclusionConnectNodeServer) Send(m *ServerMessage) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _MutualExclusion_EnterCS_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RequestEnterCS)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MutualExclusionServer).EnterCS(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MutualExclusion_EnterCS_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MutualExclusionServer).EnterCS(ctx, req.(*RequestEnterCS))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MutualExclusion_ServiceDesc is the grpc.ServiceDesc for MutualExclusion service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var MutualExclusion_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "MutualExclusion",
 	HandlerType: (*MutualExclusionServer)(nil),
-	Methods:     []grpc.MethodDesc{},
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "EnterCS",
+			Handler:    _MutualExclusion_EnterCS_Handler,
+		},
+	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "ConnectNode",

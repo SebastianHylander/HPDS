@@ -1,16 +1,32 @@
 syntax = "proto3";
 option go_package = "gRPC/proto";
 
-message nodeConnection {
-    int64 nodeId = 1;
-  }
+message NodeConnection {
+    int64 node_id = 1;
+    int64 timestamp = 2;
+}
 
-  message ServerMessage {
-    string message = 2;
-  }
+enum MessageType {
+    REQUEST_ENTER_CS = 0;
+    RESPONSE_ENTER_CS = 1;
+}
 
-  message Empty{}
+message RequestEnterCS { //Hvis en node skal gå i en "Critical Section", hvis vi skal access "shared resources" (slides) 
+    int64 node_id = 1;
+}
+
+message ResponseEnterCS { //Om den har fået access 
+    int64 node_id = 1;
+    int64 timestamp = 2;
+}
+
+message ServerMessage {
+    string message = 1;
+}
+
+message Empty{}
 
 service MutualExclusion {
-    rpc ConnectNode(nodeConnection) returns (stream ServerMessage);
+    rpc ConnectNode(NodeConnection) returns (stream ServerMessage);
+    rpc EnterCS(RequestEnterCS) returns (ResponseEnterCS);
 }
