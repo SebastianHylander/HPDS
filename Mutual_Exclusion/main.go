@@ -58,10 +58,13 @@ func main() {
 	hasToken := true
 
 	// Print the nodes
-	for i, node := range nodes {
+	for i := range nodes {
 		// make a Node from node.go with the given ip and port
 		// call the function to start the node
-		go Node.Start(node.ip, node.portNumber, nodes[(i+1)%(len(nodes))].ip, nodes[(i+1)%(len(nodes))].portNumber, hasToken)
+
+		newNode := Node.NewNode(nodes[i].ip, nodes[i].portNumber)
+
+		go newNode.Start(nodes[(i+1)%len(nodes)].ip, nodes[(i+1)%len(nodes)].portNumber, hasToken)
 		hasToken = false
 	}
 	for {
