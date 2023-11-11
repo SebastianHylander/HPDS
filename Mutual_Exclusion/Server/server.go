@@ -52,8 +52,3 @@ func startServer(server *Server) {
 		log.Fatalf("Could not serve listener")
 	}
 }
-
-func (s *Server) ConnectNode(in *proto.NodeConnection, stream proto.MutualExclusion_ConnectNodeServer) error {
-
-	return nil
-}

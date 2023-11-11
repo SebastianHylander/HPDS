@@ -19,16 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	MutualExclusion_ConnectNode_FullMethodName = "/MutualExclusion/ConnectNode"
-	MutualExclusion_EnterCS_FullMethodName     = "/MutualExclusion/EnterCS"
+	MutualExclusion_HandoverToken_FullMethodName = "/MutualExclusion/HandoverToken"
 )
 
 // MutualExclusionClient is the client API for MutualExclusion service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MutualExclusionClient interface {
-	ConnectNode(ctx context.Context, in *NodeConnection, opts ...grpc.CallOption) (MutualExclusion_ConnectNodeClient, error)
-	EnterCS(ctx context.Context, in *RequestEnterCS, opts ...grpc.CallOption) (*ResponseEnterCS, error)
+	HandoverToken(ctx context.Context, in *Token, opts ...grpc.CallOption) (*Empty, error)
 }
 
 type mutualExclusionClient struct {
@@ -39,41 +37,9 @@ func NewMutualExclusionClient(cc grpc.ClientConnInterface) MutualExclusionClient
 	return &mutualExclusionClient{cc}
 }
 
-func (c *mutualExclusionClient) ConnectNode(ctx context.Context, in *NodeConnection, opts ...grpc.CallOption) (MutualExclusion_ConnectNodeClient, error) {
-	stream, err := c.cc.NewStream(ctx, &MutualExclusion_ServiceDesc.Streams[0], MutualExclusion_ConnectNode_FullMethodName, opts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &mutualExclusionConnectNodeClient{stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
-}
-
-type MutualExclusion_ConnectNodeClient interface {
-	Recv() (*ServerMessage, error)
-	grpc.ClientStream
-}
-
-type mutualExclusionConnectNodeClient struct {
-	grpc.ClientStream
-}
-
-func (x *mutualExclusionConnectNodeClient) Recv() (*ServerMessage, error) {
-	m := new(ServerMessage)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
-}
-
-func (c *mutualExclusionClient) EnterCS(ctx context.Context, in *RequestEnterCS, opts ...grpc.CallOption) (*ResponseEnterCS, error) {
-	out := new(ResponseEnterCS)
-	err := c.cc.Invoke(ctx, MutualExclusion_EnterCS_FullMethodName, in, out, opts...)
+func (c *mutualExclusionClient) HandoverToken(ctx context.Context, in *Token, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, MutualExclusion_HandoverToken_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -84,8 +50,7 @@ func (c *mutualExclusionClient) EnterCS(ctx context.Context, in *RequestEnterCS,
 // All implementations must embed UnimplementedMutualExclusionServer
 // for forward compatibility
 type MutualExclusionServer interface {
-	ConnectNode(*NodeConnection, MutualExclusion_ConnectNodeServer) error
-	EnterCS(context.Context, *RequestEnterCS) (*ResponseEnterCS, error)
+	HandoverToken(context.Context, *Token) (*Empty, error)
 	mustEmbedUnimplementedMutualExclusionServer()
 }
 
@@ -93,11 +58,8 @@ type MutualExclusionServer interface {
 type UnimplementedMutualExclusionServer struct {
 }
 
-func (UnimplementedMutualExclusionServer) ConnectNode(*NodeConnection, MutualExclusion_ConnectNodeServer) error {
-	return status.Errorf(codes.Unimplemented, "method ConnectNode not implemented")
-}
-func (UnimplementedMutualExclusionServer) EnterCS(context.Context, *RequestEnterCS) (*ResponseEnterCS, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method EnterCS not implemented")
+func (UnimplementedMutualExclusionServer) HandoverToken(context.Context, *Token) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method HandoverToken not implemented")
 }
 func (UnimplementedMutualExclusionServer) mustEmbedUnimplementedMutualExclusionServer() {}
 
@@ -112,41 +74,20 @@ func RegisterMutualExclusionServer(s grpc.ServiceRegistrar, srv MutualExclusionS
 	s.RegisterService(&MutualExclusion_ServiceDesc, srv)
 }
 
-func _MutualExclusion_ConnectNode_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(NodeConnection)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
-	}
-	return srv.(MutualExclusionServer).ConnectNode(m, &mutualExclusionConnectNodeServer{stream})
-}
-
-type MutualExclusion_ConnectNodeServer interface {
-	Send(*ServerMessage) error
-	grpc.ServerStream
-}
-
-type mutualExclusionConnectNodeServer struct {
-	grpc.ServerStream
-}
-
-func (x *mutualExclusionConnectNodeServer) Send(m *ServerMessage) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-func _MutualExclusion_EnterCS_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RequestEnterCS)
+func _MutualExclusion_HandoverToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Token)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MutualExclusionServer).EnterCS(ctx, in)
+		return srv.(MutualExclusionServer).HandoverToken(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: MutualExclusion_EnterCS_FullMethodName,
+		FullMethod: MutualExclusion_HandoverToken_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MutualExclusionServer).EnterCS(ctx, req.(*RequestEnterCS))
+		return srv.(MutualExclusionServer).HandoverToken(ctx, req.(*Token))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -159,16 +100,10 @@ var MutualExclusion_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*MutualExclusionServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "EnterCS",
-			Handler:    _MutualExclusion_EnterCS_Handler,
+			MethodName: "HandoverToken",
+			Handler:    _MutualExclusion_HandoverToken_Handler,
 		},
 	},
-	Streams: []grpc.StreamDesc{
-		{
-			StreamName:    "ConnectNode",
-			Handler:       _MutualExclusion_ConnectNode_Handler,
-			ServerStreams: true,
-		},
-	},
+	Streams:  []grpc.StreamDesc{},
 	Metadata: "gRPC/proto.proto",
 }

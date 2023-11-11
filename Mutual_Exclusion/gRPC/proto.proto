@@ -1,49 +1,13 @@
 syntax = "proto3";
 option go_package = "gRPC/proto";
 
-message NodeConnection {
-    int64 node_id = 1;
-    int64 timestamp = 2;
-}
-
-message ServerMessage {
-    string message = 1;
-}
-
-message RequestEnterCS { //Hvis en node skal gå i en "Critical Section", hvis vi skal access "shared resources" (slides) 
-    int64 node_id = 1;
-}
-
-message ResponseEnterCS { //Om den har fået access 
-    int64 node_id = 1;
-    int64 timestamp = 2;
-}
-
-message ReleaseCS { //In the Ring Token algorithm, after a node finishes its critical section execution, it needs to release the token.
-    int64 node_id = 1;
-}
 
 message Token { //nodes pass a token to each other to control access to the critical section. Det er vores token representation
-    int64 node_id = 1;
-}
-
-enum MessageType {
-    REQUEST_ENTER_CS = 0;
-    RESPONSE_ENTER_CS = 1;
-    RELEASE_CS = 2;  // Added for clarity
-    TOKEN = 3;      // Added for clarity
-}
-
-message NodeInfo { //When nodes discover each other? 
-    int64 node_id = 1;
-    string address = 2;
-    int32 port = 3;
+    int64 timestamp = 1;
 }
 
 message Empty{}
 
 service MutualExclusion {
-    rpc ConnectNode(NodeConnection) returns (stream ServerMessage);
-    rpc EnterCS(RequestEnterCS) returns (ResponseEnterCS);
-    rpc DiscoverNodes(Empty) returns (stream NodeInfo);
+    rpc HandoverToken(Token) returns (Empty) {} //rpc call to handover the token
 }

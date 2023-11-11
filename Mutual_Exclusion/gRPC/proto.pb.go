@@ -20,63 +20,16 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type MessageType int32
-
-const (
-	MessageType_REQUEST_ENTER_CS  MessageType = 0
-	MessageType_RESPONSE_ENTER_CS MessageType = 1
-)
-
-// Enum value maps for MessageType.
-var (
-	MessageType_name = map[int32]string{
-		0: "REQUEST_ENTER_CS",
-		1: "RESPONSE_ENTER_CS",
-	}
-	MessageType_value = map[string]int32{
-		"REQUEST_ENTER_CS":  0,
-		"RESPONSE_ENTER_CS": 1,
-	}
-)
-
-func (x MessageType) Enum() *MessageType {
-	p := new(MessageType)
-	*p = x
-	return p
-}
-
-func (x MessageType) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (MessageType) Descriptor() protoreflect.EnumDescriptor {
-	return file_gRPC_proto_proto_enumTypes[0].Descriptor()
-}
-
-func (MessageType) Type() protoreflect.EnumType {
-	return &file_gRPC_proto_proto_enumTypes[0]
-}
-
-func (x MessageType) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use MessageType.Descriptor instead.
-func (MessageType) EnumDescriptor() ([]byte, []int) {
-	return file_gRPC_proto_proto_rawDescGZIP(), []int{0}
-}
-
-type NodeConnection struct {
+type Token struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	NodeId    int64 `protobuf:"varint,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
-	Timestamp int64 `protobuf:"varint,2,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	Timestamp int64 `protobuf:"varint,1,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
 }
 
-func (x *NodeConnection) Reset() {
-	*x = NodeConnection{}
+func (x *Token) Reset() {
+	*x = Token{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_gRPC_proto_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -84,13 +37,13 @@ func (x *NodeConnection) Reset() {
 	}
 }
 
-func (x *NodeConnection) String() string {
+func (x *Token) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*NodeConnection) ProtoMessage() {}
+func (*Token) ProtoMessage() {}
 
-func (x *NodeConnection) ProtoReflect() protoreflect.Message {
+func (x *Token) ProtoReflect() protoreflect.Message {
 	mi := &file_gRPC_proto_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -102,172 +55,16 @@ func (x *NodeConnection) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use NodeConnection.ProtoReflect.Descriptor instead.
-func (*NodeConnection) Descriptor() ([]byte, []int) {
+// Deprecated: Use Token.ProtoReflect.Descriptor instead.
+func (*Token) Descriptor() ([]byte, []int) {
 	return file_gRPC_proto_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *NodeConnection) GetNodeId() int64 {
-	if x != nil {
-		return x.NodeId
-	}
-	return 0
-}
-
-func (x *NodeConnection) GetTimestamp() int64 {
+func (x *Token) GetTimestamp() int64 {
 	if x != nil {
 		return x.Timestamp
 	}
 	return 0
-}
-
-type RequestEnterCS struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	NodeId int64 `protobuf:"varint,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
-}
-
-func (x *RequestEnterCS) Reset() {
-	*x = RequestEnterCS{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_gRPC_proto_proto_msgTypes[1]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *RequestEnterCS) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RequestEnterCS) ProtoMessage() {}
-
-func (x *RequestEnterCS) ProtoReflect() protoreflect.Message {
-	mi := &file_gRPC_proto_proto_msgTypes[1]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use RequestEnterCS.ProtoReflect.Descriptor instead.
-func (*RequestEnterCS) Descriptor() ([]byte, []int) {
-	return file_gRPC_proto_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *RequestEnterCS) GetNodeId() int64 {
-	if x != nil {
-		return x.NodeId
-	}
-	return 0
-}
-
-type ResponseEnterCS struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	NodeId    int64 `protobuf:"varint,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
-	Timestamp int64 `protobuf:"varint,2,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
-}
-
-func (x *ResponseEnterCS) Reset() {
-	*x = ResponseEnterCS{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_gRPC_proto_proto_msgTypes[2]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *ResponseEnterCS) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ResponseEnterCS) ProtoMessage() {}
-
-func (x *ResponseEnterCS) ProtoReflect() protoreflect.Message {
-	mi := &file_gRPC_proto_proto_msgTypes[2]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ResponseEnterCS.ProtoReflect.Descriptor instead.
-func (*ResponseEnterCS) Descriptor() ([]byte, []int) {
-	return file_gRPC_proto_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *ResponseEnterCS) GetNodeId() int64 {
-	if x != nil {
-		return x.NodeId
-	}
-	return 0
-}
-
-func (x *ResponseEnterCS) GetTimestamp() int64 {
-	if x != nil {
-		return x.Timestamp
-	}
-	return 0
-}
-
-type ServerMessage struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Message string `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
-}
-
-func (x *ServerMessage) Reset() {
-	*x = ServerMessage{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_gRPC_proto_proto_msgTypes[3]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *ServerMessage) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ServerMessage) ProtoMessage() {}
-
-func (x *ServerMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_gRPC_proto_proto_msgTypes[3]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ServerMessage.ProtoReflect.Descriptor instead.
-func (*ServerMessage) Descriptor() ([]byte, []int) {
-	return file_gRPC_proto_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *ServerMessage) GetMessage() string {
-	if x != nil {
-		return x.Message
-	}
-	return ""
 }
 
 type Empty struct {
@@ -279,7 +76,7 @@ type Empty struct {
 func (x *Empty) Reset() {
 	*x = Empty{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_gRPC_proto_proto_msgTypes[4]
+		mi := &file_gRPC_proto_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -292,7 +89,7 @@ func (x *Empty) String() string {
 func (*Empty) ProtoMessage() {}
 
 func (x *Empty) ProtoReflect() protoreflect.Message {
-	mi := &file_gRPC_proto_proto_msgTypes[4]
+	mi := &file_gRPC_proto_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -305,41 +102,21 @@ func (x *Empty) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Empty.ProtoReflect.Descriptor instead.
 func (*Empty) Descriptor() ([]byte, []int) {
-	return file_gRPC_proto_proto_rawDescGZIP(), []int{4}
+	return file_gRPC_proto_proto_rawDescGZIP(), []int{1}
 }
 
 var File_gRPC_proto_proto protoreflect.FileDescriptor
 
 var file_gRPC_proto_proto_rawDesc = []byte{
 	0x0a, 0x10, 0x67, 0x52, 0x50, 0x43, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x70, 0x72, 0x6f,
-	0x74, 0x6f, 0x22, 0x47, 0x0a, 0x0e, 0x4e, 0x6f, 0x64, 0x65, 0x43, 0x6f, 0x6e, 0x6e, 0x65, 0x63,
-	0x74, 0x69, 0x6f, 0x6e, 0x12, 0x17, 0x0a, 0x07, 0x6e, 0x6f, 0x64, 0x65, 0x5f, 0x69, 0x64, 0x18,
-	0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x06, 0x6e, 0x6f, 0x64, 0x65, 0x49, 0x64, 0x12, 0x1c, 0x0a,
-	0x09, 0x74, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x18, 0x02, 0x20, 0x01, 0x28, 0x03,
-	0x52, 0x09, 0x74, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x22, 0x29, 0x0a, 0x0e, 0x52,
-	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x45, 0x6e, 0x74, 0x65, 0x72, 0x43, 0x53, 0x12, 0x17, 0x0a,
-	0x07, 0x6e, 0x6f, 0x64, 0x65, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x06,
-	0x6e, 0x6f, 0x64, 0x65, 0x49, 0x64, 0x22, 0x48, 0x0a, 0x0f, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
-	0x73, 0x65, 0x45, 0x6e, 0x74, 0x65, 0x72, 0x43, 0x53, 0x12, 0x17, 0x0a, 0x07, 0x6e, 0x6f, 0x64,
-	0x65, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x06, 0x6e, 0x6f, 0x64, 0x65,
-	0x49, 0x64, 0x12, 0x1c, 0x0a, 0x09, 0x74, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x18,
-	0x02, 0x20, 0x01, 0x28, 0x03, 0x52, 0x09, 0x74, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70,
-	0x22, 0x29, 0x0a, 0x0d, 0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67,
-	0x65, 0x12, 0x18, 0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x18, 0x01, 0x20, 0x01,
-	0x28, 0x09, 0x52, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x22, 0x07, 0x0a, 0x05, 0x45,
-	0x6d, 0x70, 0x74, 0x79, 0x2a, 0x3a, 0x0a, 0x0b, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x54,
-	0x79, 0x70, 0x65, 0x12, 0x14, 0x0a, 0x10, 0x52, 0x45, 0x51, 0x55, 0x45, 0x53, 0x54, 0x5f, 0x45,
-	0x4e, 0x54, 0x45, 0x52, 0x5f, 0x43, 0x53, 0x10, 0x00, 0x12, 0x15, 0x0a, 0x11, 0x52, 0x45, 0x53,
-	0x50, 0x4f, 0x4e, 0x53, 0x45, 0x5f, 0x45, 0x4e, 0x54, 0x45, 0x52, 0x5f, 0x43, 0x53, 0x10, 0x01,
-	0x32, 0x71, 0x0a, 0x0f, 0x4d, 0x75, 0x74, 0x75, 0x61, 0x6c, 0x45, 0x78, 0x63, 0x6c, 0x75, 0x73,
-	0x69, 0x6f, 0x6e, 0x12, 0x30, 0x0a, 0x0b, 0x43, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74, 0x4e, 0x6f,
-	0x64, 0x65, 0x12, 0x0f, 0x2e, 0x4e, 0x6f, 0x64, 0x65, 0x43, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74,
-	0x69, 0x6f, 0x6e, 0x1a, 0x0e, 0x2e, 0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x4d, 0x65, 0x73, 0x73,
-	0x61, 0x67, 0x65, 0x30, 0x01, 0x12, 0x2c, 0x0a, 0x07, 0x45, 0x6e, 0x74, 0x65, 0x72, 0x43, 0x53,
-	0x12, 0x0f, 0x2e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x45, 0x6e, 0x74, 0x65, 0x72, 0x43,
-	0x53, 0x1a, 0x10, 0x2e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x45, 0x6e, 0x74, 0x65,
-	0x72, 0x43, 0x53, 0x42, 0x0c, 0x5a, 0x0a, 0x67, 0x52, 0x50, 0x43, 0x2f, 0x70, 0x72, 0x6f, 0x74,
-	0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x74, 0x6f, 0x22, 0x25, 0x0a, 0x05, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x12, 0x1c, 0x0a, 0x09, 0x74,
+	0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x09,
+	0x74, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x22, 0x07, 0x0a, 0x05, 0x45, 0x6d, 0x70,
+	0x74, 0x79, 0x32, 0x34, 0x0a, 0x0f, 0x4d, 0x75, 0x74, 0x75, 0x61, 0x6c, 0x45, 0x78, 0x63, 0x6c,
+	0x75, 0x73, 0x69, 0x6f, 0x6e, 0x12, 0x21, 0x0a, 0x0d, 0x48, 0x61, 0x6e, 0x64, 0x6f, 0x76, 0x65,
+	0x72, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x12, 0x06, 0x2e, 0x54, 0x6f, 0x6b, 0x65, 0x6e, 0x1a, 0x06,
+	0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x22, 0x00, 0x42, 0x0c, 0x5a, 0x0a, 0x67, 0x52, 0x50, 0x43,
+	0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -354,23 +131,16 @@ func file_gRPC_proto_proto_rawDescGZIP() []byte {
 	return file_gRPC_proto_proto_rawDescData
 }
 
-var file_gRPC_proto_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_gRPC_proto_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_gRPC_proto_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_gRPC_proto_proto_goTypes = []interface{}{
-	(MessageType)(0),        // 0: MessageType
-	(*NodeConnection)(nil),  // 1: NodeConnection
-	(*RequestEnterCS)(nil),  // 2: RequestEnterCS
-	(*ResponseEnterCS)(nil), // 3: ResponseEnterCS
-	(*ServerMessage)(nil),   // 4: ServerMessage
-	(*Empty)(nil),           // 5: Empty
+	(*Token)(nil), // 0: Token
+	(*Empty)(nil), // 1: Empty
 }
 var file_gRPC_proto_proto_depIdxs = []int32{
-	1, // 0: MutualExclusion.ConnectNode:input_type -> NodeConnection
-	2, // 1: MutualExclusion.EnterCS:input_type -> RequestEnterCS
-	4, // 2: MutualExclusion.ConnectNode:output_type -> ServerMessage
-	3, // 3: MutualExclusion.EnterCS:output_type -> ResponseEnterCS
-	2, // [2:4] is the sub-list for method output_type
-	0, // [0:2] is the sub-list for method input_type
+	0, // 0: MutualExclusion.HandoverToken:input_type -> Token
+	1, // 1: MutualExclusion.HandoverToken:output_type -> Empty
+	1, // [1:2] is the sub-list for method output_type
+	0, // [0:1] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -383,7 +153,7 @@ func file_gRPC_proto_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_gRPC_proto_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*NodeConnection); i {
+			switch v := v.(*Token); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -395,42 +165,6 @@ func file_gRPC_proto_proto_init() {
 			}
 		}
 		file_gRPC_proto_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RequestEnterCS); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_gRPC_proto_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ResponseEnterCS); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_gRPC_proto_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ServerMessage); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_gRPC_proto_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Empty); i {
 			case 0:
 				return &v.state
@@ -448,14 +182,13 @@ func file_gRPC_proto_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_gRPC_proto_proto_rawDesc,
-			NumEnums:      1,
-			NumMessages:   5,
+			NumEnums:      0,
+			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_gRPC_proto_proto_goTypes,
 		DependencyIndexes: file_gRPC_proto_proto_depIdxs,
-		EnumInfos:         file_gRPC_proto_proto_enumTypes,
 		MessageInfos:      file_gRPC_proto_proto_msgTypes,
 	}.Build()
 	File_gRPC_proto_proto = out.File
