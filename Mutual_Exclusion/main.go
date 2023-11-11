@@ -6,9 +6,11 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/SebastianHylander/HPDS/Mutual_Exclusion/Node"
 )
 
-type Node struct {
+type NodeStruct struct {
 	ip         string
 	portNumber int
 }
@@ -25,7 +27,7 @@ func main() {
 	scanner := bufio.NewScanner(file)
 
 	// Create a slice to store the nodes
-	var nodes []Node
+	var nodes []NodeStruct
 
 	// Read the file line by line
 	for scanner.Scan() {
@@ -44,7 +46,7 @@ func main() {
 		}
 
 		// Create a node
-		node := Node{
+		node := NodeStruct{
 			ip:         ip,
 			portNumber: port,
 		}
@@ -53,9 +55,15 @@ func main() {
 		nodes = append(nodes, node)
 	}
 
-	// Print the nodes
-	for _, node := range nodes {
-		// make a Node from node.go with the given ip and port
+	hasToken := true
 
+	// Print the nodes
+	for i, node := range nodes {
+		// make a Node from node.go with the given ip and port
+		// call the function to start the node
+		go Node.Start(node.ip, node.portNumber, nodes[(i+1)%(len(nodes))].ip, nodes[(i+1)%(len(nodes))].portNumber, hasToken)
+		hasToken = false
+	}
+	for {
 	}
 }

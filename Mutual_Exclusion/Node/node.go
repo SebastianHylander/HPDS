@@ -1,9 +1,13 @@
-package main
+package Node
 
 import (
+	"context"
 	"log"
+	"math/rand"
 	"net"
+	"os"
 	"strconv"
+	"time"
 
 	proto "github.com/SebastianHylander/HPDS/Mutual_Exclusion/gRPC"
 	"google.golang.org/grpc"
@@ -13,30 +17,78 @@ type Node struct {
 	proto.UnimplementedMutualExclusionServer
 	ip        string
 	port      int
-	neighbour *proto.MutualExclusionClient
+	neighbour proto.MutualExclusionClient
 }
 
-func Start(ip string, port int, neighbourip string, neighbourport int) {
+var wantAccess bool
+var hasToken bool
+var node *Node
+
+func Start(ip string, port int, neighbourip string, neighbourport int, token bool) {
+
+	wantAccess = false
+	hasToken = token
+
+	// Create a node
+	node = &Node{
+		ip:        ip,
+		port:      port,
+		neighbour: nil,
+	}
+	startServer()
 
 	neighbour, err := connectToNeighbour(neighbourip, neighbourport)
 	if err != nil {
 		log.Fatalf("Could not connect to neighbour: %v", err)
 	}
 
-	// Create a node
-	node := &Node{
-		ip:        ip,
-		port:      port,
-		neighbour: &neighbour,
+	node.neighbour = neighbour
+
+	go run()
+
+	for {
 	}
-	waitForMessage(node)
 }
 
-func waitForMessage(node *Node) {
+func run() {
+	// generate a random integer between 0 and 100000 (0 and 100 seconds)
+	i := rand.Intn(100000)
+	// sleep for the random amount of time
+	time.Sleep(time.Duration(i) * time.Millisecond)
+	wantAccess = true
+
+	for !hasToken {
+	}
+
+	// Write 'hello' at the buttom of the file output.txt
+	file, err := os.OpenFile("output.txt", os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatalf("Could not open file: %v", err)
+	}
+	_, err = file.WriteString("hello\n")
+	if err != nil {
+		log.Fatalf("Could not write to file: %v", err)
+	}
+	defer file.Close()
+
+	wantAccess = false
+
+	go run()
 
 }
 
-func startServer(node *Node) {
+func HandoverToken(ctx context.Context, in *proto.Token) (*proto.Empty, error) {
+
+	hasToken = true
+	for wantAccess {
+	}
+	hasToken = false
+	node.neighbour.HandoverToken(ctx, in)
+
+	return &proto.Empty{}, nil
+}
+
+func startServer() {
 	// Create a new grpc server
 	grpcServer := grpc.NewServer()
 
