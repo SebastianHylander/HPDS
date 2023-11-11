@@ -42,7 +42,6 @@ func (n *Node) Start(neighbourip string, neighbourport int, token bool) {
 	n.neighbour = neighbour
 
 	if n.hasToken {
-		log.Print(n.port, " received token")
 		n.neighbour.HandoverToken(context.Background(), &proto.Token{})
 	}
 
@@ -52,25 +51,31 @@ func (n *Node) Start(neighbourip string, neighbourport int, token bool) {
 
 func (n *Node) run() {
 	for {
-		// generate a random integer between 0 and 100000 (0 and 100 seconds)
-		i := rand.Intn(100000)
+		// generate a random integer between 0 and 10000 (0 and 10 seconds)
+		i := rand.Intn(10000)
 		// sleep for the random amount of time
 		time.Sleep(time.Duration(i) * time.Millisecond)
 		n.wantAccess = true
 
+		log.Print(n.port, "wants access to the file")
+
 		for !n.hasToken {
 		}
+
+		log.Print(n.port, "got the token")
 
 		// Write 'hello' at the buttom of the file output.txt
 		file, err := os.OpenFile("output.txt", os.O_APPEND|os.O_WRONLY, 0644)
 		if err != nil {
 			log.Fatalf("Could not open file: %v", err)
 		}
-		_, err = file.WriteString("hello\n")
+		_, err = file.WriteString(n.ip + ":" + strconv.Itoa(n.port) + " got the token and accessed the file\n")
 		if err != nil {
 			log.Fatalf("Could not write to file: %v", err)
 		}
 		defer file.Close()
+
+		log.Print(n.port, "wrote to file and handed over the token")
 
 		n.wantAccess = false
 	}
@@ -78,7 +83,6 @@ func (n *Node) run() {
 }
 
 func (n *Node) HandoverToken(ctx context.Context, in *proto.Token) (*proto.Empty, error) {
-	log.Print(n.port, " received token")
 	n.hasToken = true
 	for n.wantAccess {
 	}
