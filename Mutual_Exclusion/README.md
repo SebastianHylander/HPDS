@@ -3,11 +3,11 @@
 To run our program, start be defining the nodes in _nodes.txt_ in the following format
 
 ```
-  [ip address] [port] \n
-  [ip address] [port] \n
-  [ip address] [port] \n
-  [ip address] [port] \n
-  [ip address] [port] \n
+  [ip address] [port]
+  [ip address] [port]
+  [ip address] [port]
+  [ip address] [port]
+  [ip address] [port]
 ```
 
 Where each line is a new node.
