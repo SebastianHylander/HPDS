@@ -21,4 +21,4 @@ go run main.go
 
 In the current directory (HPDS/MutualExclusion/)
 
-The output of the program will be appended to _output.txt_, so make sure to clear the current lines in the file, if you want to start from new.
+The output of the program will be appended to _output.txt_, so make sure to clear the current lines in the file, if you want to start with a clean output
