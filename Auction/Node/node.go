@@ -3,9 +3,11 @@ package Node
 import (
 	"context"
 	"log"
+	"math/rand"
 	"net"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	proto "github.com/SebastianHylander/HPDS/Auction/grpc"
@@ -23,12 +25,16 @@ type Node struct {
 	replications []proto.AuctionSystemClient
 	bids         map[int64]int64
 	inProgress   bool
+	mapLock      sync.Mutex
 }
 
 func NewNode(ip string, port int) *Node {
 	node := &Node{
-		ip:   ip,
-		port: port,
+		ip:           ip,
+		id:           int64(port),
+		port:         port,
+		nodeId2Index: make(map[int]int),
+		bids:         make(map[int64]int64),
 	}
 	return node
 }
@@ -36,9 +42,12 @@ func NewNode(ip string, port int) *Node {
 func (n *Node) Start(nodes []string) {
 	go n.startServer()
 
+	// Time to start the servers
+	time.Sleep(10 * time.Second)
+
 	for _, node := range nodes {
 		// Split the string into ip and port
-		ipAndPort := strings.Split(node, ":")
+		ipAndPort := strings.Split(node, " ")
 		port, _ := strconv.Atoi(ipAndPort[1])
 		if !(port == n.port) {
 			// make grpc connection to each node
@@ -67,8 +76,10 @@ func (n *Node) Start(nodes []string) {
 }
 
 func (n *Node) run() {
-	time.Sleep(20 * time.Second)
+	log.Print("Starting auction")
+	time.Sleep(60 * time.Second)
 	n.inProgress = false
+	log.Print("Auction finished and inProgress set to ", n.inProgress)
 	for {
 	}
 
@@ -77,6 +88,8 @@ func (n *Node) run() {
 func (n *Node) RunElection(ctx context.Context, in *proto.ElectionStatus) (*proto.Empty, error) {
 	if in.ServerId == n.id {
 		log.Print("Election done")
+		n.leaderId = in.ServerId
+		log.Print("Leader is: ", n.leaderId)
 		return &proto.Empty{}, nil
 	} else if in.ServerId < n.id {
 		in.ServerId = n.id
@@ -130,7 +143,10 @@ func (n *Node) MakeBid(ctx context.Context, in *proto.Bid) (*proto.Ack, error) {
 }
 
 func (n *Node) updateBid(bidderId int64, bidValue int64) {
+	n.mapLock.Lock()
 	n.bids[bidderId] = bidValue
+	n.mapLock.Unlock()
+
 }
 
 func (n *Node) GetResult(ctx context.Context, in *proto.Empty) (*proto.Result, error) {
@@ -170,9 +186,15 @@ func (n *Node) startServer() {
 
 	// Register the grpc server and serve its listener
 	proto.RegisterAuctionSystemServer(grpcServer, n)
+
+	//30% chance of causing a simulated crash
+	if rand.Intn(100) < 30 {
+		go n.Crash(grpcServer)
+	}
+
 	serveError := grpcServer.Serve(listener)
 	if serveError != nil {
-		log.Fatalf("Could not serve listener")
+		log.Println("Error serving: ", serveError)
 	}
 }
 
@@ -181,4 +203,11 @@ func (n *Node) connectToNeighbour(ip string, port int) (proto.AuctionSystemClien
 	conn, err := grpc.Dial(ip+":"+strconv.Itoa(port), grpc.WithInsecure())
 
 	return proto.NewAuctionSystemClient(conn), err
+}
+
+// Function to simulate a crash failure
+func (n *Node) Crash(server *grpc.Server) {
+	time.Sleep(time.Duration(20+rand.Intn(20)) * time.Second)
+	log.Print("Crashing node with port: ", n.port)
+	server.Stop()
 }

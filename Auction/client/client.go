@@ -1,4 +1,4 @@
-package Client
+package main
 
 import (
 	"bufio"
@@ -26,6 +26,7 @@ var (
 )
 
 func main() {
+	flag.Parse()
 	// Create a new client
 	client := Client{port: *clientPort, bid: 0}
 
@@ -78,6 +79,7 @@ func (c *Client) connectToServer() {
 		//connect to serverIp and port
 		conn, err := grpc.Dial(ip+":"+strconv.Itoa(port), grpc.WithInsecure())
 		if err == nil {
+			fmt.Println("Connected to server add port " + strconv.Itoa(port))
 			c.server = proto.NewAuctionSystemClient(conn)
 			lookingForServer = false
 		}
@@ -122,6 +124,11 @@ func (c *Client) GetResult() {
 }
 
 func (c *Client) run() {
+
+	fmt.Println("Welcome to the auction system!")
+	fmt.Println("To make a bid, type the amount you want to bid and press enter")
+	fmt.Println("To get the result, type 'result' and press enter")
+
 	// Wait for input in the client terminal
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
