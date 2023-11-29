@@ -1,7 +1,6 @@
 # RAFT
-This directory is a copy of the repository by chapin666
- - https://github.com/chapin666/simple-raft
- With the comments in raft.go translated to english
+This directory is a copy of the repository by chapin666 (https://github.com/chapin666/simple-raft)
+With the comments in raft.go translated to english
 
 # simple implementation of raft consensus algorithm
 
